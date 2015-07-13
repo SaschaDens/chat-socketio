@@ -1,0 +1,77 @@
+{
+  "name": "chat-socketio",
+  "version": "1.0.0",
+  "description": "Chat application based on socket.io and angularjs",
+  "scripts": {
+    "init": "npm install",
+    "start": "gulp clean; gulp serve-dev",
+    "test": "gulp test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SaschaDens/chat-socketio.git"
+  },
+  "keywords": [
+    "Socket.io",
+    "AngularJs"
+  ],
+  "author": "Sascha Dens",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/SaschaDens/chat-socketio/issues"
+  },
+  "homepage": "https://github.com/SaschaDens/chat-socketio",
+  "dependencies": {
+    "cors": "^2.7.1",
+    "express": "^4.13.1",
+    "gulp": "^3.9.0",
+    "gulp-imagemin": "^2.3.0",
+    "gulp-jscs": "^1.6.0",
+    "gulp-jshint": "^1.11.2",
+    "gulp-load-plugins": "^1.0.0-rc.1",
+    "gulp-nodemon": "^2.0.3",
+    "gulp-concat": "^2.6.0",
+    "gulp-minify-css": "^1.2.0",
+    "gulp-sourcemaps": "^1.5.2",
+    "jshint-stylish": "^2.0.1",
+    "merge-stream": "^0.1.8",
+    "socket.io": "^1.3.5"
+  },
+  "pluginConfig": {
+    "compass": {
+      "config_file": "./src/client/resources/config.rb",
+      "css": "./src/client/resources/css",
+      "sass": "./src/client/resources/sass"
+    },
+    "imagemin": {
+      "optimizationLevel": 3
+    },
+    "minifyCss": {}
+  },
+  "paths": {
+    "client": "./src/client/",
+    "server": "./src/server/",
+    "build": "./build/",
+    "staging": "./build/staging",
+    "production": "./build/production",
+    "vendor": {
+      "css": [
+        "./bower_components/bootstrap/bootstrap.min.css"
+      ],
+      "js": [
+        "./bower_components/angular/angular.min.js",
+        "./bower_components/angular-route/angular-route.min.js",
+        "./bower_components/socket.io/",
+        "./bower_components/jquery/dist/jquery.min.js"
+      ]
+    },
+    "js": [
+      "./src/client/app/**/*.js"
+    ],
+    "css": [],
+    "images": [
+      "./src/client/app/resources/**/*"
+    ],
+    "fonts": []
+  }
+}
