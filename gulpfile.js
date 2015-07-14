@@ -1,7 +1,10 @@
 var gulp = require('gulp'),
     merge = require('merge-stream'),
+    compass = require('gulp-compass'),
     pkg = require('./package.json'),
     plug = require('gulp-load-plugins')();
+
+// TODO ngAnnotate & uglify
 
 gulp.task('analyze', function() {
     var jshint = analyzejshint([].concat(pkg.paths.js)),
@@ -10,15 +13,33 @@ gulp.task('analyze', function() {
     return merge(jshint, jscs);
 });
 
-gulp.task('js', function() {});
+gulp.task('templatecache', function() {
+    // TODO add template cache
+});
 
-gulp.task('vendorjs', function() {});
+gulp.task('js', function() {
+    var dest = getDestination();
+    return gulp
+        .src(pkg.paths.js)
+        .pipe(plug.concat(pkg.filename.js))
+        .pipe(plug.ngAnnotate(pkg.pluginConfig.ngAnnotate))
+        .pipe(plug.uglify(pkg.pluginConfig.uglify))
+        .pipe(gulp.dest(dest));
+});
+
+gulp.task('vendorjs', function() {
+    var dest = getDestination() + 'vendor/js';
+    return gulp
+        .src(pkg.paths.vendorjs)
+        .pipe(plug.concat(pkg.filename.vendorjs))
+        .pipe(gulp.dest(dest));
+});
 
 gulp.task('css', function() {
     var dest = getDestination() + 'css';
     log('Compiling css');
     return gulp
-        .src('./src/resource/sass/app.scss')
+        .src(pkg.paths.sass)
         .pipe(compass(pkg.pluginConfig.compass))
         .pipe(plug.sourcemaps.init())
         .pipe(plug.minifyCss(pkg.pluginConfig.minifyCss))
@@ -27,11 +48,11 @@ gulp.task('css', function() {
 });
 
 gulp.task('vendorcss', function() {
-    var dest = getDestination() + 'css';
+    var dest = getDestination() + 'vendor/css';
     log('Creating vendor css');
     return gulp
         .src(pkg.paths.vendorcss)
-        .pipe(plug.concat('vendor.min.css'))
+        .pipe(plug.concat(pkg.filename.vendorcss))
         .pipe(plug.minifyCss(pkg.pluginConfig.minifyCss))
         .pipe(gulp.dest(dest));
 });
@@ -50,6 +71,16 @@ gulp.task('fonts', function() {
     log('Moving fonts');
     return gulp
         .src(pkg.paths.fonts)
+        .pipe(gulp.dest(dest));
+});
+
+gulp.task('inject', function () {
+    // TODO add dependencies
+    var dest = getDestination() + 'index.html',
+        sources = [].concat(getDestination() + '**/*.min.*');
+    return gulp
+        .src(pkg.paths.client + '/index.html')
+        .pipe(inject(sources))
         .pipe(gulp.dest(dest));
 });
 

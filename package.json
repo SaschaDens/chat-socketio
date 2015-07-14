@@ -24,14 +24,17 @@
   "dependencies": {
     "cors": "^2.7.1",
     "express": "^4.13.1",
+    "glob": "^5.0.14",
     "gulp": "^3.9.0",
+    "gulp-compass": "^2.1.0",
+    "gulp-concat": "^2.6.0",
     "gulp-imagemin": "^2.3.0",
+    "gulp-inject": "^1.3.1",
     "gulp-jscs": "^1.6.0",
     "gulp-jshint": "^1.11.2",
     "gulp-load-plugins": "^1.0.0-rc.1",
-    "gulp-nodemon": "^2.0.3",
-    "gulp-concat": "^2.6.0",
     "gulp-minify-css": "^1.2.0",
+    "gulp-nodemon": "^2.0.3",
     "gulp-sourcemaps": "^1.5.2",
     "jshint-stylish": "^2.0.1",
     "merge-stream": "^0.1.8",
@@ -43,10 +46,22 @@
       "css": "./src/client/resources/css",
       "sass": "./src/client/resources/sass"
     },
+    "ngAnnotate": {
+      "add": "true",
+      "single_quotes": "true"
+    },
+    "uglify": {
+      "mangle": "true"
+    },
     "imagemin": {
       "optimizationLevel": 3
     },
     "minifyCss": {}
+  },
+  "filename": {
+    "js": "all.min.js",
+    "vendorjs": "vendor.min.js",
+    "vendorcss": "vendor.min.css"
   },
   "paths": {
     "client": "./src/client/",
@@ -67,6 +82,9 @@
     },
     "js": [
       "./src/client/app/**/*.js"
+    ],
+    "sass": [
+      "./src/resource/sass/app.scss"
     ],
     "css": [],
     "images": [

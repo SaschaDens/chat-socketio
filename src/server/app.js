@@ -16,7 +16,14 @@ app.get('/ping', function (req, resp) {
 });
 
 switch (env) {
+    case 'production':
+        app.use('/', express.static(pkg.paths.production));
+        break;
+    case 'staging':
+        app.use('/', express.static(pkg.paths.staging));
+        break;
     default:
+        app.use('/bower_components', express.static('./bower_components'));
         app.use('/', express.static(pkg.paths.client));
         break;
 }
