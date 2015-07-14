@@ -5,8 +5,7 @@
         .module('app.chat')
         .controller('ChatController', Chat);
 
-    Chat.$inject = ['socketio'];
-
+    // @ngInject
     function Chat(socketio) {
         var vm = this;
 

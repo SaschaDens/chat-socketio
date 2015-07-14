@@ -4,8 +4,6 @@ var gulp = require('gulp'),
     pkg = require('./package.json'),
     plug = require('gulp-load-plugins')();
 
-// TODO ngAnnotate & uglify
-
 gulp.task('analyze', function() {
     var jshint = analyzejshint([].concat(pkg.paths.js)),
         jscs = analyzejscs([].concat(pkg.paths.js));
@@ -18,26 +16,25 @@ gulp.task('templatecache', function() {
 });
 
 gulp.task('js', function() {
-    var dest = getDestination();
+    var dest = getDestination() + 'js';
     return gulp
         .src(pkg.paths.js)
         .pipe(plug.concat(pkg.filename.js))
         .pipe(plug.ngAnnotate(pkg.pluginConfig.ngAnnotate))
-        .pipe(plug.uglify(pkg.pluginConfig.uglify))
+        //.pipe(plug.uglify(pkg.pluginConfig.uglify))
         .pipe(gulp.dest(dest));
 });
 
 gulp.task('vendorjs', function() {
     var dest = getDestination() + 'vendor/js';
     return gulp
-        .src(pkg.paths.vendorjs)
+        .src(pkg.paths.vendor.js)
         .pipe(plug.concat(pkg.filename.vendorjs))
         .pipe(gulp.dest(dest));
 });
 
 gulp.task('css', function() {
     var dest = getDestination() + 'css';
-    log('Compiling css');
     return gulp
         .src(pkg.paths.sass)
         .pipe(compass(pkg.pluginConfig.compass))
@@ -49,9 +46,8 @@ gulp.task('css', function() {
 
 gulp.task('vendorcss', function() {
     var dest = getDestination() + 'vendor/css';
-    log('Creating vendor css');
     return gulp
-        .src(pkg.paths.vendorcss)
+        .src(pkg.paths.vendor.css)
         .pipe(plug.concat(pkg.filename.vendorcss))
         .pipe(plug.minifyCss(pkg.pluginConfig.minifyCss))
         .pipe(gulp.dest(dest));
@@ -59,7 +55,6 @@ gulp.task('vendorcss', function() {
 
 gulp.task('images', function() {
     var dest = getDestination() + 'images';
-    log('Image optimization');
     return gulp
         .src(pkg.paths.images)
         .pipe(plug.imagemin(pkg.pluginConfig.imagemin))
@@ -68,7 +63,6 @@ gulp.task('images', function() {
 
 gulp.task('fonts', function() {
     var dest = getDestination() + 'fonts';
-    log('Moving fonts');
     return gulp
         .src(pkg.paths.fonts)
         .pipe(gulp.dest(dest));
@@ -146,7 +140,6 @@ function analyzejshint(sources, overrideConfig) {
 
 function analyzejscs(sources) {
     log('Running JSCS');
-
     return gulp
         .src(sources)
         .pipe(plug.jscs('./.jscsrc'));

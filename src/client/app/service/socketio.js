@@ -5,8 +5,7 @@
         .module('app.service')
         .factory('socketio', Socketio);
 
-    Socketio.$inject = ['$rootScope'];
-
+    // @ngInject
     function Socketio ($rootScope) {
 
         var socket = window.io(),
