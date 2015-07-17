@@ -17,7 +17,7 @@ var users = [],
     usersConnected = 0,
     config = {
         maxPostPerTimeFrame: 4,
-        timeFrame: (1000 * 30)
+        timeFrame: (1000 * 10)
     };
 io.on('connection', function (socket) {
     var d = new Date();
