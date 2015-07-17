@@ -2,7 +2,7 @@
 
 var express = require('express'),
     app = express(),
-    server = require('http').createServer(app),
+    server = require('http').Server(app),
     io = require('socket.io')(server),
     cors = require('cors'),
     port = process.env.PORT || 8080,
@@ -13,6 +13,25 @@ app.use(cors());
 
 app.get('/ping', function (req, resp) {
     resp.send('pong');
+});
+
+var users = [];
+io.on('connection', function (socket) {
+    socket.on('add user', function (data) {
+        var extendedData = {
+            socket: socket,
+            nickname: data.nickname
+        };
+        users.push(extendedData);
+
+        console.log('User joined: ' + data.nickname);
+        socket.broadcast.emit('user joined', data);
+    });
+
+    socket.on('new message', function (data) {
+        console.log(data);
+        socket.broadcast.emit('new message', data);
+    });
 });
 
 switch (env) {
@@ -28,7 +47,7 @@ switch (env) {
         break;
 }
 
-app.listen(port, function () {
+server.listen(port, function () {
     console.log('******************************');
     console.log('Running chat-socketIO server');
     console.log('Listening on port: ' + port);

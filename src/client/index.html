@@ -10,15 +10,22 @@
 </head>
 <body>
 <div class="container">
-    <h1>Chat-SocketIO</h1>
+    <div ng-view></div>
 </div>
 
 <script src="/bower_components/jquery/dist/jquery.js"></script>
-
 <script src="/bower_components/angular/angular.min.js"></script>
 <script src="/bower_components/angular-route/angular-route.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
 
 <script src="app/app.module.js"></script>
+<script src="app/routes.config.js"></script>
 <script src="app/core/core.module.js"></script>
+
+<script src="app/service/service.module.js"></script>
+<script src="app/service/socketio.js"></script>
+
+<script src="app/chat/chat.module.js"></script>
+<script src="app/chat/chat.controller.js"></script>
 </body>
 </html>

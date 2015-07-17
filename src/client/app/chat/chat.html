@@ -1,0 +1,24 @@
+<div ng-controller="ChatController as vm">
+    <h1>Chat-SocketIO</h1>
+
+    <div class="chatName" ng-hide="!vm.hideChat">
+        <form name="chatUser" ng-submit="chatUser.$valid && vm.setNickname()" novalidate>
+            <div class="form-group">
+                <input ng-model="vm.nickname" ng-minlength="3" ng-maxlength="12" type="text" class="form-control" placeholder="Enter name here">
+            </div>
+        </form>
+    </div>
+    <div class="chatApp" ng-hide="vm.hideChat">
+        <div class="chatArea">
+            <ul>
+                <li ng-repeat="msg in vm.messages"><span>{{ msg.nickname }}:</span><div class="msg">{{ msg.message }}</div></li>
+            </ul>
+        </div>
+        <form ng-submit="vm.sendMessage()" novalidate>
+            <div class="form-group">
+                <input ng-model="vm.message" type="text" class="form-control" name="chatInput"
+                       placeholder="Enter text here">
+            </div>
+        </form>
+    </div>
+</div>

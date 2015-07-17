@@ -2,6 +2,10 @@
     'use strict';
 
     angular.module('app', [
-        'app.core'
+        'ngRoute',
+
+        'app.core',
+        'app.service',
+        'app.chat'
     ]);
 })();
