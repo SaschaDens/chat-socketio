@@ -16,7 +16,8 @@
                 setNickname: setNickname,
                 getMessage: getMessage,
                 sendMessage: sendMessage,
-                userJoined: userJoined
+                userJoined: userJoined,
+                userErrors: userErrors
             };
 
         return service;
@@ -64,6 +65,10 @@
 
         function userJoined(callback) {
             on('user joined', callback);
+        }
+
+        function userErrors(callback) {
+            on('userError', callback);
         }
     }
 })();

@@ -27,6 +27,20 @@
             });
         });
 
+        socketio.userErrors(function (error){
+            if (error.code === 10) {
+                var expireDate = moment(error.details.timeoutEnds),
+                    currentDate = moment(),
+                    timeoutEnds = expireDate.subtract(currentDate);
+
+                vm.messages.push({
+                    nickname: 'Server',
+                    message: 'You tried to submit multiple messages on a short ' +
+                        'time. Try again in ' + moment.duration(timeoutEnds).humanize()
+                });
+            }
+        });
+
         this.sendMessage = function () {
             var data = {
                 nickname: vm.nickname,
@@ -34,10 +48,6 @@
             };
 
             vm.message = '';
-            vm.messages.push({
-                nickname: 'You',
-                message: data.message
-            });
             socketio.sendMessage(data);
         };
 

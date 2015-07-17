@@ -11,28 +11,84 @@ var express = require('express'),
 
 app.use(cors());
 
-app.get('/ping', function (req, resp) {
-    resp.send('pong');
-});
+var ERROR_MESSAGE_TIMEOUT = 10;
 
-var users = [];
+var users = [],
+    usersConnected = 0,
+    config = {
+        maxPostPerTimeFrame: 4,
+        timeFrame: (1000 * 30)
+    };
 io.on('connection', function (socket) {
-    socket.on('add user', function (data) {
-        var extendedData = {
-            socket: socket,
-            nickname: data.nickname
-        };
-        users.push(extendedData);
+    var d = new Date();
 
-        console.log('User joined: ' + data.nickname);
+    socket.user = {
+        id: socket.id,
+        nickname: 'not set yet',
+        connectedOn: +d,
+        postPerTimeFrame: 0,
+        startTimeFrame: 0
+    };
+
+    socket.on('add user', function (data) {
+        users[socket.id] = socket.user;
+        ++usersConnected;
+
+        log('User joined: ' + data.nickname);
         socket.broadcast.emit('user joined', data);
     });
 
     socket.on('new message', function (data) {
-        console.log(data);
-        socket.broadcast.emit('new message', data);
+        var user = socket.user,
+            dateUnix = +(new Date()),
+            endTimeFrame = user.startTimeFrame + config.timeFrame;
+
+        if (dateUnix > endTimeFrame) {
+            user.postPerTimeFrame = 0;
+        }
+
+        if (user.postPerTimeFrame < config.maxPostPerTimeFrame) {
+            user.startTimeFrame = dateUnix;
+            ++user.postPerTimeFrame;
+
+            log(data);
+            socket.broadcast.emit('new message', data);
+            data.nickname = 'You'; // TODO: make this more clear + Translate
+            socket.emit('new message', data);
+        } else {
+            broadcastUserError('new message', ERROR_MESSAGE_TIMEOUT, {
+                timeoutEnds: endTimeFrame
+            });
+        }
     });
+
+    socket.on('disconnect', function ( ) {
+        --usersConnected;
+        delete users[socket.id];
+
+        socket.broadcast.emit('user left', {
+            nickname: socket.user,
+            usersConnected: usersConnected
+        });
+    });
+
+    function broadcastUserError(eventName, errorCode, details) {
+        var detailed = details || {};
+        socket.emit('userError', {
+            event: eventName,
+            code: errorCode,
+            details: detailed
+        });
+    }
 });
+
+app.get('/ping', function (req, resp) {
+    resp.send('pong');
+});
+
+function log(msg) {
+    console.log(msg);
+}
 
 switch (env) {
     case 'production':
