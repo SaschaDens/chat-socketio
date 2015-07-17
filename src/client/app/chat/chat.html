@@ -11,7 +11,7 @@
     <div class="chatApp" ng-hide="vm.hideChat">
         <div class="chatArea">
             <ul>
-                <li ng-repeat="msg in vm.messages"><span>{{ msg.nickname }}:</span><div class="msg">{{ msg.message }}</div></li>
+                <li ng-repeat="msg in vm.messages"><span>{{ msg.nickname }}:</span>{{ msg.message }}</li>
             </ul>
         </div>
         <form ng-submit="vm.sendMessage()" novalidate>
