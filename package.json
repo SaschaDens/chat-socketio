@@ -52,6 +52,12 @@
       "css": "./src/client/resources/css",
       "sass": "./src/client/resources/sass"
     },
+    "angularTemplatecache": {
+      "module": "app.core",
+      "root": "./app/",
+      "standAlone": false
+    },
+    "jshint": "jshint-stylish",
     "ngAnnotate": {
       "add": true,
       "single_quotes": true
@@ -66,6 +72,7 @@
   },
   "filename": {
     "js": "all.min.js",
+    "templatesjs": "templates.js",
     "vendorjs": "vendor.min.js",
     "vendorcss": "vendor.min.css"
   },
@@ -75,6 +82,10 @@
     "build": "./build/",
     "staging": "./build/staging/",
     "production": "./build/production/",
+    "config": {
+      "jscs": "./.jscsrc",
+      "jshint": "./.jshintrc"
+    },
     "vendor": {
       "css": [
         "./bower_components/bootstrap/dist/css/bootstrap.min.css"

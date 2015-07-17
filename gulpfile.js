@@ -16,17 +16,13 @@ gulp.task('templatecache', function() {
     var dest = getDestination();
     return gulp
         .src(pkg.paths.html)
-        .pipe(plug.angularTemplatecache('templates.js'), {
-            module: 'app',
-            standalone: false,
-            root: 'app/'
-        })
+        .pipe(plug.angularTemplatecache(pkg.filename.templatesjs, pkg.pluginConfig.angularTemplatecache))
         .pipe(gulp.dest(dest));
 });
 
 gulp.task('js', ['analyze', 'templatecache'], function() {
     var dest = getDestination() + 'static/js',
-        sources = [].concat(pkg.paths.js, getDestination() + 'templates.js');
+        sources = [].concat(pkg.paths.js, getDestination() + pkg.filename.templatesjs);
     return gulp
         .src(sources)
         .pipe(plug.concat(pkg.filename.js))
@@ -107,7 +103,9 @@ gulp.task('clean', function() {
     del(pkg.paths.build);
 });
 
-gulp.task('watch', function() {});
+gulp.task('watch', function() {
+    // Todo add development watchers
+});
 
 gulp.task('dev', function() {
     serve({
@@ -120,6 +118,8 @@ gulp.task('staging', ['inject', 'images', 'fonts'], function() {
     });
 });
 gulp.task('production', function() {
+    // Todo implement production task
+    // Todo implement rev resources
     serve({
         mode: 'production'
     });
@@ -156,18 +156,19 @@ function serve(args) {
 }
 
 function analyzejshint(sources, overrideConfig) {
-    var config = overrideConfig || './.jshintrc';
+    var config = overrideConfig || pkg.paths.config.jshint;
     log('Running JSHint');
 
     return gulp
         .src(sources)
         .pipe(plug.jshint(config))
-        .pipe(plug.jshint.reporter('jshint-stylish'));
+        .pipe(plug.jshint.reporter(pkg.pluginConfig.jshint));
 }
 
-function analyzejscs(sources) {
+function analyzejscs(sources, overrideConfig) {
+    var config = overrideConfig || pkg.paths.config.jscs;
     log('Running JSCS');
     return gulp
         .src(sources)
-        .pipe(plug.jscs('./.jscsrc'));
+        .pipe(plug.jscs(config));
 }
