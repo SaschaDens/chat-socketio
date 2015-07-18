@@ -2,7 +2,8 @@ var gulp = require('gulp'),
     merge = require('merge-stream'),
     compass = require('gulp-compass'),
     pkg = require('./package.json'),
-    plug = require('gulp-load-plugins')();
+    plug = require('gulp-load-plugins')(),
+    del = require('del');
 
 gulp.task('analyze', function() {
     var jshint = analyzejshint([].concat(pkg.paths.js)),
@@ -12,21 +13,30 @@ gulp.task('analyze', function() {
 });
 
 gulp.task('templatecache', function() {
-    // TODO add template cache
+    var dest = getDestination();
+    return gulp
+        .src(pkg.paths.html)
+        .pipe(plug.angularTemplatecache('templates.js'), {
+            module: 'app',
+            standalone: false,
+            root: 'app/'
+        })
+        .pipe(gulp.dest(dest));
 });
 
-gulp.task('js', function() {
-    var dest = getDestination() + 'js';
+gulp.task('js', ['analyze', 'templatecache'], function() {
+    var dest = getDestination() + 'static/js',
+        sources = [].concat(pkg.paths.js, getDestination() + 'templates.js');
     return gulp
-        .src(pkg.paths.js)
+        .src(sources)
         .pipe(plug.concat(pkg.filename.js))
         .pipe(plug.ngAnnotate(pkg.pluginConfig.ngAnnotate))
-        //.pipe(plug.uglify(pkg.pluginConfig.uglify))
+        .pipe(plug.uglify(pkg.pluginConfig.uglify))
         .pipe(gulp.dest(dest));
 });
 
 gulp.task('vendorjs', function() {
-    var dest = getDestination() + 'vendor/js';
+    var dest = getDestination() + 'static/vendor/js';
     return gulp
         .src(pkg.paths.vendor.js)
         .pipe(plug.concat(pkg.filename.vendorjs))
@@ -34,7 +44,7 @@ gulp.task('vendorjs', function() {
 });
 
 gulp.task('css', function() {
-    var dest = getDestination() + 'css';
+    var dest = getDestination() + 'static/css';
     return gulp
         .src(pkg.paths.sass)
         .pipe(compass(pkg.pluginConfig.compass))
@@ -45,7 +55,7 @@ gulp.task('css', function() {
 });
 
 gulp.task('vendorcss', function() {
-    var dest = getDestination() + 'vendor/css';
+    var dest = getDestination() + 'static/vendor/css';
     return gulp
         .src(pkg.paths.vendor.css)
         .pipe(plug.concat(pkg.filename.vendorcss))
@@ -54,7 +64,7 @@ gulp.task('vendorcss', function() {
 });
 
 gulp.task('images', function() {
-    var dest = getDestination() + 'images';
+    var dest = getDestination() + 'static/images';
     return gulp
         .src(pkg.paths.images)
         .pipe(plug.imagemin(pkg.pluginConfig.imagemin))
@@ -62,23 +72,40 @@ gulp.task('images', function() {
 });
 
 gulp.task('fonts', function() {
-    var dest = getDestination() + 'fonts';
+    var dest = getDestination() + 'static/fonts';
     return gulp
         .src(pkg.paths.fonts)
         .pipe(gulp.dest(dest));
 });
 
-gulp.task('inject', function () {
-    // TODO add dependencies
-    var dest = getDestination() + 'index.html',
-        sources = [].concat(getDestination() + '**/*.min.*');
+gulp.task('inject', ['css', 'vendorcss', 'js', 'vendorjs'], function () {
+    var dest = getDestination();
+
+    function inject (path, name) {
+        var fullPath = getDestination() + path,
+            options = {
+                read: false,
+                ignorePath: pkg.paths.staging.substring(1)
+            };
+        if (name) {
+            options.name = name;
+        }
+
+        return plug.inject(gulp.src(fullPath), options);
+    }
+// TODO move this configuration to pkg.json
     return gulp
-        .src(pkg.paths.client + '/index.html')
-        .pipe(inject(sources))
+        .src(pkg.paths.client + 'index.html')
+        .pipe(inject('./static/js/all.min.js'))
+        .pipe(inject('./static/vendor/js/vendor.min.js', 'inject-vendor'))
+        .pipe(inject('./static/css/app.css'))
+        .pipe(inject('./static/vendor/css/vendor.min.css', 'inject-vendor'))
         .pipe(gulp.dest(dest));
 });
 
-gulp.task('clean', function() {});
+gulp.task('clean', function() {
+    del(pkg.paths.build);
+});
 
 gulp.task('watch', function() {});
 
@@ -87,7 +114,7 @@ gulp.task('dev', function() {
         mode: 'development'
     });
 });
-gulp.task('staging', function() {
+gulp.task('staging', ['inject', 'images', 'fonts'], function() {
     serve({
         mode: 'staging'
     });
