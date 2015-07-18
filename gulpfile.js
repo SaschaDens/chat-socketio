@@ -21,7 +21,7 @@ gulp.task('templatecache', function() {
 });
 
 gulp.task('js', ['analyze', 'templatecache'], function() {
-    var dest = getDestination() + 'static/js',
+    var dest = getDestination() + 'static/rev',
         sources = [].concat(pkg.paths.js, getDestination() + pkg.filename.templatesjs);
     return gulp
         .src(sources)
@@ -32,7 +32,7 @@ gulp.task('js', ['analyze', 'templatecache'], function() {
 });
 
 gulp.task('vendorjs', function() {
-    var dest = getDestination() + 'static/vendor/js';
+    var dest = getDestination() + 'static/rev';
     return gulp
         .src(pkg.paths.vendor.js)
         .pipe(plug.concat(pkg.filename.vendorjs))
@@ -40,7 +40,7 @@ gulp.task('vendorjs', function() {
 });
 
 gulp.task('css', function() {
-    var dest = getDestination() + 'static/css';
+    var dest = getDestination() + 'static/rev';
     return gulp
         .src(pkg.paths.sass)
         .pipe(compass(pkg.pluginConfig.compass))
@@ -51,7 +51,7 @@ gulp.task('css', function() {
 });
 
 gulp.task('vendorcss', function() {
-    var dest = getDestination() + 'static/vendor/css';
+    var dest = getDestination() + 'static/rev';
     return gulp
         .src(pkg.paths.vendor.css)
         .pipe(plug.concat(pkg.filename.vendorcss))
@@ -74,11 +74,30 @@ gulp.task('fonts', function() {
         .pipe(gulp.dest(dest));
 });
 
-gulp.task('inject', ['css', 'vendorcss', 'js', 'vendorjs'], function () {
+gulp.task('rev', ['css', 'vendorcss', 'js', 'vendorjs'], function () {
     var dest = getDestination();
 
+    return gulp
+        .src(dest + 'static/rev/*')
+        .pipe(plug.rev())
+        .pipe(gulp.dest(dest + 'static/rev'))
+        .pipe(plug.rev.manifest())
+        .pipe(gulp.dest(dest));
+});
+
+gulp.task('inject', ['rev'], function () {
+    var dest = getDestination();
+
+    return gulp
+        .src(pkg.paths.client + 'index.html')
+        .pipe(inject('./static/rev/app.css'))
+        .pipe(inject('./static/rev/all.min.js'))
+        .pipe(inject('./static/rev/vendor.min.css', 'inject-vendor'))
+        .pipe(inject('./static/rev/vendor.min.js', 'inject-vendor'))
+        .pipe(gulp.dest(dest));
+
     function inject (path, name) {
-        var fullPath = getDestination() + path,
+        var fullPath = dest + path,
             options = {
                 read: false,
                 ignorePath: pkg.paths.staging.substring(1)
@@ -89,13 +108,15 @@ gulp.task('inject', ['css', 'vendorcss', 'js', 'vendorjs'], function () {
 
         return plug.inject(gulp.src(fullPath), options);
     }
-// TODO move this configuration to pkg.json
+});
+
+gulp.task('injectRev', ['inject'], function () {
+    var dest = getDestination(),
+        manifest = gulp.src(dest + 'rev-manifest.json');
+
     return gulp
-        .src(pkg.paths.client + 'index.html')
-        .pipe(inject('./static/js/all.min.js'))
-        .pipe(inject('./static/vendor/js/vendor.min.js', 'inject-vendor'))
-        .pipe(inject('./static/css/app.css'))
-        .pipe(inject('./static/vendor/css/vendor.min.css', 'inject-vendor'))
+        .src(dest + 'index.html')
+        .pipe(plug.revReplace({manifest: manifest}))
         .pipe(gulp.dest(dest));
 });
 
@@ -104,7 +125,21 @@ gulp.task('clean', function() {
 });
 
 gulp.task('watch', function() {
-    // Todo add development watchers
+    gulp
+        .watch(pkg.paths.sass, ['css'])
+        .on('change', logger);
+
+    gulp
+        .watch(pkg.paths.js, ['analyze'])
+        .on('change', logger);
+
+    function logger(event) {
+        log('*** File ' + event.path + ' was ' + event.type + ', running tasks...');
+    }
+});
+
+gulp.task('test', function () {
+    // Todo implement testing
 });
 
 gulp.task('dev', function() {
@@ -112,14 +147,15 @@ gulp.task('dev', function() {
         mode: 'development'
     });
 });
-gulp.task('staging', ['inject', 'images', 'fonts'], function() {
+
+gulp.task('staging', ['injectRev', 'images', 'fonts'], function() {
     serve({
         mode: 'staging'
     });
 });
+
 gulp.task('production', function() {
     // Todo implement production task
-    // Todo implement rev resources
     serve({
         mode: 'production'
     });
@@ -127,7 +163,7 @@ gulp.task('production', function() {
 
 function log(text) {
     console.log(text);
-};
+}
 
 function getDestination() {
     return pkg.paths.staging;
