@@ -4,21 +4,28 @@
     <meta charset="UTF-8">
     <title>Chat-SocketIO</title>
 
+    <!-- inject-vendor:css -->
     <link rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.min.css">
+    <!-- endinject -->
 
+    <!-- inject:css -->
     <link rel="stylesheet" href="resources/css/app.css">
+    <!-- endinject -->
 </head>
 <body>
 <div class="container">
     <div ng-view></div>
 </div>
 
+<script src="/socket.io/socket.io.js"></script>
+<!-- inject-vendor:js -->
 <script src="/bower_components/jquery/dist/jquery.js"></script>
 <script src="/bower_components/moment/min/moment.min.js"></script>
 <script src="/bower_components/angular/angular.min.js"></script>
 <script src="/bower_components/angular-route/angular-route.min.js"></script>
-<script src="/socket.io/socket.io.js"></script>
+<!-- endinject -->
 
+<!-- inject:js -->
 <script src="app/app.module.js"></script>
 <script src="app/routes.config.js"></script>
 <script src="app/core/core.module.js"></script>
@@ -28,5 +35,6 @@
 
 <script src="app/chat/chat.module.js"></script>
 <script src="app/chat/chat.controller.js"></script>
+<!-- endinject -->
 </body>
 </html>

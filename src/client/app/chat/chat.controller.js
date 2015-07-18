@@ -5,8 +5,7 @@
         .module('app.chat')
         .controller('ChatController', Chat);
 
-    Chat.$inject = ['socketio'];
-
+    // @ngInject
     function Chat(socketio) {
         var vm = this;
 
@@ -27,7 +26,7 @@
             });
         });
 
-        socketio.userErrors(function (error){
+        socketio.userErrors(function (error) {
             if (error.code === 10) {
                 var expireDate = moment(error.details.timeoutEnds),
                     currentDate = moment(),
@@ -36,7 +35,7 @@
                 vm.messages.push({
                     nickname: 'Server',
                     message: 'You tried to submit multiple messages on a short ' +
-                        'time. Try again in ' + moment.duration(timeoutEnds).humanize()
+                        'time. Try again in ' + moment.duration(timeoutEnds, 'seconds').humanize()
                 });
             }
         });
