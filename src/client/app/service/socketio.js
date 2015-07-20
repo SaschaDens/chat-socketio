@@ -70,4 +70,5 @@
             on('userError', callback);
         }
     }
+    Socketio.$inject = ['$rootScope'];
 })();

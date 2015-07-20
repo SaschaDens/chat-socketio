@@ -55,4 +55,5 @@
             socketio.setNickname(vm.nickname);
         };
     }
+    Chat.$inject = ['socketio'];
 })();

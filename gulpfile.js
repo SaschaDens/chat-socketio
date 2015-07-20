@@ -20,13 +20,19 @@ gulp.task('templatecache', function() {
         .pipe(gulp.dest(dest));
 });
 
-gulp.task('js', ['analyze', 'templatecache'], function() {
+gulp.task('annotate', function () {
+    return gulp
+        .src(pkg.paths.js)
+        .pipe(plug.ngAnnotate(pkg.pluginConfig.ngAnnotate))
+        .pipe(gulp.dest(pkg.paths.client + 'app'));
+});
+
+gulp.task('js', ['analyze', 'templatecache', 'annotate'], function() {
     var dest = getDestination() + 'static/rev',
         sources = [].concat(pkg.paths.js, getDestination() + pkg.filename.templatesjs);
     return gulp
         .src(sources)
         .pipe(plug.concat(pkg.filename.js))
-        .pipe(plug.ngAnnotate(pkg.pluginConfig.ngAnnotate))
         .pipe(plug.uglify(pkg.pluginConfig.uglify))
         .pipe(gulp.dest(dest));
 });
@@ -142,7 +148,7 @@ gulp.task('test', function () {
     // Todo implement testing
 });
 
-gulp.task('dev', function() {
+gulp.task('dev', ['annotate'], function() {
     serve({
         mode: 'development'
     });
