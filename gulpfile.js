@@ -3,16 +3,17 @@ var gulp = require('gulp'),
     compass = require('gulp-compass'),
     pkg = require('./package.json'),
     plug = require('gulp-load-plugins')(),
+    karma = require('karma').Server,
     del = require('del');
 
-gulp.task('analyze', function() {
+gulp.task('analyze', function () {
     var jshint = analyzejshint([].concat(pkg.paths.js)),
         jscs = analyzejscs([].concat(pkg.paths.js));
 
     return merge(jshint, jscs);
 });
 
-gulp.task('templatecache', function() {
+gulp.task('templatecache', function () {
     var dest = getDestination();
     return gulp
         .src(pkg.paths.html)
@@ -27,7 +28,7 @@ gulp.task('annotate', function () {
         .pipe(gulp.dest(pkg.paths.client + 'app'));
 });
 
-gulp.task('js', ['analyze', 'templatecache', 'annotate'], function() {
+gulp.task('js', ['analyze', 'templatecache', 'annotate'], function () {
     var dest = getDestination() + 'static/rev',
         sources = [].concat(pkg.paths.js, getDestination() + pkg.filename.templatesjs);
     return gulp
@@ -37,7 +38,7 @@ gulp.task('js', ['analyze', 'templatecache', 'annotate'], function() {
         .pipe(gulp.dest(dest));
 });
 
-gulp.task('vendorjs', function() {
+gulp.task('vendorjs', function () {
     var dest = getDestination() + 'static/rev';
     return gulp
         .src(pkg.paths.vendor.js)
@@ -45,7 +46,7 @@ gulp.task('vendorjs', function() {
         .pipe(gulp.dest(dest));
 });
 
-gulp.task('css', function() {
+gulp.task('css', function () {
     var dest = getDestination() + 'static/rev';
     return gulp
         .src(pkg.paths.sass)
@@ -56,7 +57,7 @@ gulp.task('css', function() {
         .pipe(gulp.dest(dest));
 });
 
-gulp.task('vendorcss', function() {
+gulp.task('vendorcss', function () {
     var dest = getDestination() + 'static/rev';
     return gulp
         .src(pkg.paths.vendor.css)
@@ -65,7 +66,7 @@ gulp.task('vendorcss', function() {
         .pipe(gulp.dest(dest));
 });
 
-gulp.task('images', function() {
+gulp.task('images', function () {
     var dest = getDestination() + 'static/images';
     return gulp
         .src(pkg.paths.images)
@@ -73,7 +74,7 @@ gulp.task('images', function() {
         .pipe(gulp.dest(dest));
 });
 
-gulp.task('fonts', function() {
+gulp.task('fonts', function () {
     var dest = getDestination() + 'static/fonts';
     return gulp
         .src(pkg.paths.fonts)
@@ -102,7 +103,7 @@ gulp.task('inject', ['rev'], function () {
         .pipe(inject('./static/rev/vendor.min.js', 'inject-vendor'))
         .pipe(gulp.dest(dest));
 
-    function inject (path, name) {
+    function inject(path, name) {
         var fullPath = dest + path,
             options = {
                 read: false,
@@ -126,11 +127,11 @@ gulp.task('injectRev', ['inject'], function () {
         .pipe(gulp.dest(dest));
 });
 
-gulp.task('clean', function() {
+gulp.task('clean', function () {
     del(pkg.paths.build);
 });
 
-gulp.task('watch', function() {
+gulp.task('watch', function () {
     gulp
         .watch(pkg.paths.sass, ['css'])
         .on('change', logger);
@@ -144,23 +145,28 @@ gulp.task('watch', function() {
     }
 });
 
-gulp.task('test', function () {
-    // Todo implement testing
+gulp.task('test', function (done) {
+    new karma({
+        configFile: __dirname + '/karma.conf.js',
+        singleRun: true
+    }, function () {
+        done();
+    }).start();
 });
 
-gulp.task('dev', ['annotate'], function() {
+gulp.task('dev', ['annotate'], function () {
     serve({
         mode: 'development'
     });
 });
 
-gulp.task('staging', ['injectRev', 'images', 'fonts'], function() {
+gulp.task('staging', ['injectRev', 'images', 'fonts'], function () {
     serve({
         mode: 'staging'
     });
 });
 
-gulp.task('production', function() {
+gulp.task('production', function () {
     // Todo implement production task
     serve({
         mode: 'production'
@@ -192,7 +198,7 @@ function serve(args) {
     };
 
     return plug.nodemon(options)
-        .on('restart', function() {
+        .on('restart', function () {
             console.log('Nodemon: restarted');
         });
 }
