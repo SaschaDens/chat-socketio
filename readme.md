@@ -7,3 +7,4 @@ Simple chat application based on AngularJs and Socket.io
 - NPM
 - Socket.io
 - Bower
+- Karma
